@@ -41,6 +41,13 @@ export interface ProductsResponse {
   total: number;
   skip: number;
   limit: number;
+  isHybrid?: boolean;
+}
+
+export interface CategoryItem {
+  slug: string;
+  name: string;
+  url?: string;
 }
 
 export interface ProductQueryParams {
@@ -51,3 +58,4 @@ export interface ProductQueryParams {
   sortBy?: string;
   order?: 'asc' | 'desc';
 }
+

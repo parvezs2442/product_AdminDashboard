@@ -1,14 +1,20 @@
 import React from 'react';
 import { Product } from '@/types/product';
-import { Star, Package, Check, AlertTriangle, XCircle } from 'lucide-react';
+import { Star, Package, Check, AlertTriangle, XCircle, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 
 interface ProductTableProps {
   products: Product[];
+  sortBy?: string;
+  order?: 'asc' | 'desc';
+  onSortChange?: (field: string, order: 'asc' | 'desc') => void;
   onSelectProduct?: (product: Product) => void;
 }
 
 export const ProductTable: React.FC<ProductTableProps> = ({
   products,
+  sortBy,
+  order = 'asc',
+  onSortChange,
   onSelectProduct,
 }) => {
   const getStockBadge = (stock: number) => {
@@ -36,16 +42,79 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     );
   };
 
+  const handleHeaderClick = (field: string) => {
+    if (!onSortChange) return;
+    if (sortBy === field) {
+      onSortChange(field, order === 'asc' ? 'desc' : 'asc');
+    } else {
+      onSortChange(field, 'asc');
+    }
+  };
+
+  const renderSortIcon = (field: string) => {
+    if (sortBy === field) {
+      return order === 'asc' ? (
+        <ArrowUp className="w-3.5 h-3.5 text-brand-400 inline ml-1.5" />
+      ) : (
+        <ArrowDown className="w-3.5 h-3.5 text-brand-400 inline ml-1.5" />
+      );
+    }
+    return (
+      <ArrowUpDown className="w-3.5 h-3.5 text-slate-600 group-hover/col:text-slate-400 inline ml-1.5 opacity-0 group-hover/col:opacity-100 transition-opacity" />
+    );
+  };
+
   return (
     <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl backdrop-blur-sm">
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="border-b border-slate-800 bg-slate-900/90 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            <th className="py-3.5 px-6">Product</th>
+          <tr className="border-b border-slate-800 bg-slate-900/90 text-[11px] font-bold uppercase tracking-wider text-slate-400 select-none">
+            {/* Title / Product Header */}
+            <th
+              onClick={() => handleHeaderClick('title')}
+              className="py-3.5 px-6 cursor-pointer hover:text-white transition-colors group/col"
+            >
+              <div className="flex items-center">
+                <span>Product</span>
+                {renderSortIcon('title')}
+              </div>
+            </th>
+
+            {/* Category Header */}
             <th className="py-3.5 px-6">Category</th>
-            <th className="py-3.5 px-6">Price</th>
-            <th className="py-3.5 px-6">Rating</th>
-            <th className="py-3.5 px-6 text-right">Stock</th>
+
+            {/* Price Header */}
+            <th
+              onClick={() => handleHeaderClick('price')}
+              className="py-3.5 px-6 cursor-pointer hover:text-white transition-colors group/col"
+            >
+              <div className="flex items-center">
+                <span>Price</span>
+                {renderSortIcon('price')}
+              </div>
+            </th>
+
+            {/* Rating Header */}
+            <th
+              onClick={() => handleHeaderClick('rating')}
+              className="py-3.5 px-6 cursor-pointer hover:text-white transition-colors group/col"
+            >
+              <div className="flex items-center">
+                <span>Rating</span>
+                {renderSortIcon('rating')}
+              </div>
+            </th>
+
+            {/* Stock Header */}
+            <th
+              onClick={() => handleHeaderClick('stock')}
+              className="py-3.5 px-6 text-right cursor-pointer hover:text-white transition-colors group/col"
+            >
+              <div className="flex items-center justify-end">
+                <span>Stock</span>
+                {renderSortIcon('stock')}
+              </div>
+            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-800/60 text-sm">
@@ -66,7 +135,6 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         loading="lazy"
                         onError={(e) => {
-                          // Fallback to placeholder icon
                           (e.target as HTMLElement).style.display = 'none';
                         }}
                       />
