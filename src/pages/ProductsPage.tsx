@@ -300,7 +300,7 @@ export const ProductsPage: React.FC = () => {
               </h1>
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center space-x-1">
                 <Zap className="w-3 h-3 mr-1" />
-                Stage 5: CRUD Ready
+                Live Catalog
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-400 mt-1">
