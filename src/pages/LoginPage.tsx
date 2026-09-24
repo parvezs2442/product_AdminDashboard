@@ -60,11 +60,14 @@ export const LoginPage: React.FC = () => {
       const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/products';
       navigate(from, { replace: true });
     } catch (err: any) {
-      const serverMessage =
-        err?.response?.data?.message ||
-        err?.message ||
-        'Invalid username or password. Please check your credentials.';
-      setErrorMessage(serverMessage);
+      const serverMessage = err?.response?.data?.message || err?.message;
+      if (serverMessage && serverMessage.toLowerCase().includes('invalid credential')) {
+        setErrorMessage(
+          'Invalid credentials. Please use registered DummyJSON credentials (e.g. Username: "emilys", Password: "emilyspass").'
+        );
+      } else {
+        setErrorMessage(serverMessage || 'Invalid credentials. Please check your username and password.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -105,13 +108,13 @@ export const LoginPage: React.FC = () => {
           )}
 
           <form className="space-y-5" onSubmit={handleSubmit} noValidate>
-            {/* Username Input */}
+            {/* Username or Email Input */}
             <div>
               <label
                 htmlFor="username"
                 className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
               >
-                Username
+                Username or Email
               </label>
               <div className="relative rounded-xl shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -126,7 +129,7 @@ export const LoginPage: React.FC = () => {
                   disabled={isSubmitting}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter your username"
+                  placeholder="e.g. emilys or emily.johnson@x.dummyjson.com"
                   className="block w-full pl-10 pr-3.5 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all disabled:opacity-60"
                 />
               </div>
@@ -168,6 +171,12 @@ export const LoginPage: React.FC = () => {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+            </div>
+
+            {/* Account Credentials Hint */}
+            <div className="flex items-center justify-between text-[11px] text-slate-400 bg-slate-950/40 border border-slate-800/60 rounded-lg px-3 py-1.5">
+              <span>User: <strong className="font-mono text-brand-300">emilys</strong></span>
+              <span>Pass: <strong className="font-mono text-brand-300">emilyspass</strong></span>
             </div>
 
             {/* Submit Button (Rapid click protected) */}
