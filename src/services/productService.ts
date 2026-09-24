@@ -42,7 +42,7 @@ export const productService = {
       const response = await apiClient.get<ProductsResponse>(
         `/products/category/${categorySlug}`,
         {
-          params: { limit: 0 },
+          params: { limit: 0, ...(params?.delay ? { delay: params.delay } : {}) },
           signal,
         }
       );
@@ -74,6 +74,9 @@ export const productService = {
         queryParams.sortBy = sortBy;
         queryParams.order = order;
       }
+      if (params?.delay) {
+        queryParams.delay = params.delay;
+      }
 
       const response = await apiClient.get<ProductsResponse>(
         `/products/category/${categorySlug}`,
@@ -92,6 +95,9 @@ export const productService = {
         queryParams.sortBy = sortBy;
         queryParams.order = order;
       }
+      if (params?.delay) {
+        queryParams.delay = params.delay;
+      }
 
       const response = await apiClient.get<ProductsResponse>('/products/search', {
         params: queryParams,
@@ -105,6 +111,9 @@ export const productService = {
       if (sortBy) {
         queryParams.sortBy = sortBy;
         queryParams.order = order;
+      }
+      if (params?.delay) {
+        queryParams.delay = params.delay;
       }
 
       const response = await apiClient.get<ProductsResponse>('/products', {

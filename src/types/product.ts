@@ -57,5 +57,7 @@ export interface ProductQueryParams {
   category?: string;
   sortBy?: string;
   order?: 'asc' | 'desc';
+  delay?: number;
 }
+
 

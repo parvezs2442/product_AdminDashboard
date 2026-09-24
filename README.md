@@ -102,6 +102,23 @@ npm run preview
 
 ---
 
+## 📝 Submission Notes (Required by Assignment)
+
+### 1. Architectural Choices
+- **Decoupled Architecture:** Strict separation between UI presentation (`/components/products`), business/API logic (`/services`), state contexts (`/context`), and network client (`/lib/axios.ts`).
+- **No External State/Table Libraries:** Handcrafted custom table, responsive cards, and pagination without third-party abstraction layers (e.g. TanStack Table, React Query), demonstrating pure React state mastery and deep DOM control.
+- **Defensive State Clamping:** Every URL parameter (`page`, `limit`, `delay`, `id`) is defensively cast, validated, and clamped, guaranteeing that broken queries like `?page=abc` or `?page=999` never throw runtime errors.
+
+### 2. One Problem Faced & How We Fixed It
+- **The Challenge:** When testing search responsiveness with simulated latency (`&delay=2000`), typing rapidly (e.g. typing `p`, then `ph`, then `phone`) triggered three asynchronous requests. The earlier request (`p`) could finish *after* the latest request (`phone`), corrupting the product list with stale results.
+- **The Fix:** We implemented a unified `AbortController` cancellation pattern. Every time a new keystroke or filter event fires, `abortControllerRef.current.abort()` executes synchronously before dispatching the new Axios request with `controller.signal`. Additionally, `axios.isCancel(err)` is intercepted and silently discarded in the catch block so no spurious error notifications flash in the UI.
+
+### 3. Where AI Helped
+- AI pair programming assisted in rapidly benchmarking DummyJSON API edge cases (discovering that category filtering ignores `q` search parameters), generating the TypeScript interfaces for product dimensions/reviews, and drafting the responsive mobile card layouts. Every implementation detail was audited, verified with production builds, and documented line-by-line.
+
+---
+
+
 ## 📁 Project Structure
 
 ```

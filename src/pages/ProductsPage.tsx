@@ -15,7 +15,7 @@ import { productService } from '@/services/productService';
 import { productOverlay } from '@/services/productOverlay';
 import { useToast } from '@/context/ToastContext';
 import { Product, CategoryItem } from '@/types/product';
-import { Package, RefreshCw, Zap, Plus, RotateCcw } from 'lucide-react';
+import { Package, RefreshCw, Zap, Plus, RotateCcw, Clock } from 'lucide-react';
 
 export const ProductsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -28,6 +28,9 @@ export const ProductsPage: React.FC = () => {
 
   const rawLimit = parseInt(searchParams.get('limit') || '10', 10);
   const currentLimit = [10, 20, 50].includes(rawLimit) ? rawLimit : 10;
+
+  const rawDelay = parseInt(searchParams.get('delay') || '0', 10);
+  const currentDelay = isNaN(rawDelay) || rawDelay < 0 ? 0 : rawDelay;
 
   const searchQuery = searchParams.get('q') || '';
   const selectedCategory = searchParams.get('category') || '';
@@ -89,6 +92,7 @@ export const ProductsPage: React.FC = () => {
           category: selectedCategory,
           sortBy: sortBy || undefined,
           order,
+          delay: currentDelay > 0 ? currentDelay : undefined,
         },
         controller.signal
       );
@@ -119,7 +123,7 @@ export const ProductsPage: React.FC = () => {
         setIsLoading(false);
       }
     }
-  }, [currentPage, currentLimit, searchQuery, selectedCategory, sortBy, order]);
+  }, [currentPage, currentLimit, searchQuery, selectedCategory, sortBy, order, currentDelay]);
 
   useEffect(() => {
     fetchProducts();
@@ -183,6 +187,18 @@ export const ProductsPage: React.FC = () => {
     setSearchParams(params);
   }, [currentLimit, setSearchParams]);
 
+  // Defensive URL Clamping: Auto-adjust if page exceeds available pages (e.g. ?page=999)
+  useEffect(() => {
+    if (total > 0) {
+      const maxPage = Math.max(1, Math.ceil(total / currentLimit));
+      if (currentPage > maxPage) {
+        const params = new URLSearchParams(searchParams);
+        params.set('page', maxPage.toString());
+        setSearchParams(params, { replace: true });
+      }
+    }
+  }, [total, currentLimit, currentPage, searchParams, setSearchParams]);
+
   // Page navigation handlers
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
@@ -195,6 +211,19 @@ export const ProductsPage: React.FC = () => {
     const params = new URLSearchParams(searchParams);
     params.set('page', '1');
     params.set('limit', newLimit.toString());
+    setSearchParams(params);
+  };
+
+  // Toggle artificial network latency (&delay=2000) for race condition evaluation
+  const handleToggleDelay = () => {
+    const params = new URLSearchParams(searchParams);
+    if (currentDelay > 0) {
+      params.delete('delay');
+      toast.info('Latency simulation removed', 'Normal API response speed restored.');
+    } else {
+      params.set('delay', '2000');
+      toast.info('Latency simulation active', 'All requests delayed by 2000ms. Test rapid typing in search!');
+    }
     setSearchParams(params);
   };
 
@@ -280,6 +309,20 @@ export const ProductsPage: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
+            {/* Race Condition Latency Simulation Toggle */}
+            <button
+              onClick={handleToggleDelay}
+              className={`inline-flex items-center space-x-1.5 text-xs font-semibold px-3 py-2 rounded-xl border transition-all cursor-pointer ${
+                currentDelay > 0
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 ring-1 ring-amber-500/30 shadow-md shadow-amber-500/10'
+                  : 'bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border-slate-700/80'
+              }`}
+              title="Toggle &delay=2000 in API requests to evaluate rapid typing race condition protection"
+            >
+              <Clock className="w-3.5 h-3.5" />
+              <span>{currentDelay > 0 ? 'Latency: 2000ms (Active)' : 'Test &delay=2000'}</span>
+            </button>
+
             {/* Reset Demo Data button if changes made */}
             {hasModifications && (
               <button
