@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Package, LogOut, ShieldCheck } from 'lucide-react';
+import { Package, LogOut } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -21,14 +21,9 @@ export const Navbar: React.FC = () => {
             <Package className="w-5 h-5 text-white" />
           </div>
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="text-lg font-bold tracking-tight text-white">
-                Admin<span className="text-brand-400">Hub</span>
-              </span>
-              <span className="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20">
-                Stage 1
-              </span>
-            </div>
+            <span className="text-lg font-bold tracking-tight text-white">
+              Admin<span className="text-brand-400">Hub</span>
+            </span>
             <p className="text-xs text-slate-400 hidden sm:block">Product Management System</p>
           </div>
         </div>
@@ -48,10 +43,6 @@ export const Navbar: React.FC = () => {
                   {user.firstName} {user.lastName}
                 </span>
                 <span className="text-[10px] text-slate-400 font-mono">@{user.username}</span>
-              </div>
-              <div className="hidden sm:flex items-center text-emerald-400 text-[11px] bg-emerald-950/60 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                <ShieldCheck className="w-3 h-3 mr-1" />
-                Auth Active
               </div>
             </div>
 

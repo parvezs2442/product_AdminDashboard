@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, X, SlidersHorizontal, Loader2, Sparkles, FilterX } from 'lucide-react';
+import { Search, X, SlidersHorizontal, Loader2, FilterX } from 'lucide-react';
 import { CategoryItem } from '@/types/product';
 import { productService } from '@/services/productService';
 
@@ -244,19 +244,6 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
             <FilterX className="w-3.5 h-3.5" />
             <span>Reset All</span>
           </button>
-        </div>
-      )}
-
-      {/* Assignment Edge-Case Notification Banner (Hybrid Pipeline) */}
-      {isHybrid && (
-        <div className="p-3 rounded-xl bg-gradient-to-r from-brand-950/70 via-slate-900 to-indigo-950/70 border border-brand-500/30 text-xs text-brand-200 flex items-start sm:items-center space-x-2.5 animate-fadeIn">
-          <Sparkles className="w-4 h-4 text-brand-400 shrink-0 mt-0.5 sm:mt-0" />
-          <div className="leading-relaxed">
-            <span className="font-semibold text-white">Hybrid Pipeline Active:</span>{' '}
-            DummyJSON API separates search and category endpoints. We are performing client-side fuzzy search across{' '}
-            <span className="font-semibold text-brand-300 capitalize">{selectedCategoryName}</span> for{' '}
-            <span className="font-mono text-white">&ldquo;{searchQuery}&rdquo;</span>.
-          </div>
         </div>
       )}
     </div>

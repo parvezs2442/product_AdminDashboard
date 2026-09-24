@@ -32,7 +32,7 @@ export const ProductNotFound: React.FC<ProductNotFoundProps> = ({ productId }) =
             <span className="font-mono text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">
               #{productId || 'Unknown'}
             </span>{' '}
-            does not exist in the DummyJSON catalog or has been removed.
+            does not exist in the product catalog or has been removed.
           </p>
         </div>
 

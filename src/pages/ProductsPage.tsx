@@ -15,7 +15,7 @@ import { productService } from '@/services/productService';
 import { productOverlay } from '@/services/productOverlay';
 import { useToast } from '@/context/ToastContext';
 import { Product, CategoryItem } from '@/types/product';
-import { Package, RefreshCw, Zap, Plus, RotateCcw, Clock } from 'lucide-react';
+import { Package, RefreshCw, Plus, RotateCcw } from 'lucide-react';
 
 export const ProductsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -214,18 +214,6 @@ export const ProductsPage: React.FC = () => {
     setSearchParams(params);
   };
 
-  // Toggle artificial network latency (&delay=2000) for race condition evaluation
-  const handleToggleDelay = () => {
-    const params = new URLSearchParams(searchParams);
-    if (currentDelay > 0) {
-      params.delete('delay');
-      toast.info('Latency simulation removed', 'Normal API response speed restored.');
-    } else {
-      params.set('delay', '2000');
-      toast.info('Latency simulation active', 'All requests delayed by 2000ms. Test rapid typing in search!');
-    }
-    setSearchParams(params);
-  };
 
   // Connection to Stage 4: Product detail view
   const handleSelectProduct = (product: Product) => {
@@ -298,31 +286,13 @@ export const ProductsPage: React.FC = () => {
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
                 Products Catalog
               </h1>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center space-x-1">
-                <Zap className="w-3 h-3 mr-1" />
-                Live Catalog
-              </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              Full CRUD management with validation, race-condition protection, and client persistence simulation.
+              Manage, filter, and track inventory across all product categories.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            {/* Race Condition Latency Simulation Toggle */}
-            <button
-              onClick={handleToggleDelay}
-              className={`inline-flex items-center space-x-1.5 text-xs font-semibold px-3 py-2 rounded-xl border transition-all cursor-pointer ${
-                currentDelay > 0
-                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 ring-1 ring-amber-500/30 shadow-md shadow-amber-500/10'
-                  : 'bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border-slate-700/80'
-              }`}
-              title="Toggle &delay=2000 in API requests to evaluate rapid typing race condition protection"
-            >
-              <Clock className="w-3.5 h-3.5" />
-              <span>{currentDelay > 0 ? 'Latency: 2000ms (Active)' : 'Test &delay=2000'}</span>
-            </button>
-
             {/* Restore Default Catalog button if changes made */}
             {hasModifications && (
               <button

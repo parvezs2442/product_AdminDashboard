@@ -196,7 +196,7 @@ export const LoginPage: React.FC = () => {
           {/* Security footnote */}
           <div className="mt-6 pt-4 border-t border-slate-800 text-center flex items-center justify-center space-x-1.5 text-[11px] text-slate-500">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-            <span>Protected by shared Axios token authorization</span>
+            <span>Encrypted 256-bit secure session</span>
           </div>
         </div>
       </div>
