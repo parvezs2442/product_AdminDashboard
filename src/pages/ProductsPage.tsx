@@ -270,10 +270,10 @@ export const ProductsPage: React.FC = () => {
     fetchProducts();
   };
 
-  const handleResetDemoData = () => {
+  const handleRestoreCatalog = () => {
     productOverlay.resetOverlay();
     setHasModifications(false);
-    toast.info('Demo data restored', 'Original DummyJSON product catalog reset.');
+    toast.info('Default catalog restored', 'Original product catalog state has been restored.');
     fetchProducts();
   };
 
@@ -323,15 +323,15 @@ export const ProductsPage: React.FC = () => {
               <span>{currentDelay > 0 ? 'Latency: 2000ms (Active)' : 'Test &delay=2000'}</span>
             </button>
 
-            {/* Reset Demo Data button if changes made */}
+            {/* Restore Default Catalog button if changes made */}
             {hasModifications && (
               <button
-                onClick={handleResetDemoData}
+                onClick={handleRestoreCatalog}
                 className="inline-flex items-center space-x-1.5 text-xs font-medium text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 px-3 py-2 rounded-xl transition-all cursor-pointer"
-                title="Reset simulated overlay to original DummyJSON data"
+                title="Restore default product catalog state"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                <span>Reset Demo Data</span>
+                <span>Restore Catalog</span>
               </button>
             )}
 

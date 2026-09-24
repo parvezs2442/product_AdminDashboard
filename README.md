@@ -53,7 +53,7 @@ Engineered with a modern dark-mode interface, robust defensive programming, zero
 - **Double-Submission Protection:** Submit button locks with an animated spinner (`isSubmitting`) preventing duplicate clicks and race conditions.
 - **Confirm Delete Danger Modal:** High-contrast alert popup confirming deletion before action execution.
 - **Local State Overlay (`productOverlay.ts`):** Overcomes DummyJSON's lack of remote persistence by maintaining local additions, field updates, and deleted IDs in `localStorage`. Modifications persist seamlessly across pagination, search, filter switching, and page reloads.
-- **Demo Data Reset:** A **"Reset Demo Data"** action allows developers and evaluators to revert back to the original DummyJSON catalog at any time.
+- **Catalog State Restore:** A **"Restore Catalog"** action allows users and evaluators to revert back to the original DummyJSON catalog at any time.
 - **Toast Feedback Alerts:** Non-blocking floating notifications (`success`, `error`, `info`) with auto-dismiss animations.
 
 ---
@@ -79,11 +79,12 @@ npm run dev
 
 The application will start at **`http://localhost:3000`**.
 
-### Demo Credentials
-Use any valid DummyJSON user credentials or the pre-filled demo account:
+### Authentication Credentials
+Log in with any authentic DummyJSON user credentials (including the assignment test account):
 - **Username:** `emilys`
 - **Password:** `emilyspass`
-*(Or click "Auto Fill" on the login screen for 1-click access)*
+
+Any valid DummyJSON user from `https://dummyjson.com/users` can also be used.
 
 ### Production Build & Preview
 ```bash

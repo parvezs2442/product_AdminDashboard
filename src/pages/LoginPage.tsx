@@ -8,7 +8,6 @@ import {
   EyeOff,
   AlertCircle,
   Loader2,
-  Sparkles,
   ArrowRight,
   ShieldCheck,
   Package,
@@ -71,12 +70,6 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const handleFillDemoCredentials = () => {
-    setUsername('emilys');
-    setPassword('emilyspass');
-    setErrorMessage(null);
-  };
-
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background ambient lighting effects */}
@@ -99,25 +92,6 @@ export const LoginPage: React.FC = () => {
       {/* Main Login Card */}
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md z-10 px-4 sm:px-0">
         <div className="bg-slate-900/90 border border-slate-800/80 rounded-2xl py-8 px-6 sm:px-10 shadow-2xl backdrop-blur-xl">
-          {/* Quick Demo Credentials Pill */}
-          <div className="mb-6 p-3 rounded-xl bg-slate-800/50 border border-slate-700/60 flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-xs text-slate-300">
-              <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>
-                Demo: <span className="font-mono text-brand-300 font-semibold">emilys</span> /{' '}
-                <span className="font-mono text-brand-300 font-semibold">emilyspass</span>
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={handleFillDemoCredentials}
-              className="text-xs font-semibold text-brand-400 hover:text-brand-300 bg-brand-500/10 hover:bg-brand-500/20 px-2.5 py-1 rounded-md transition-colors"
-              id="fill-demo-credentials-button"
-            >
-              Auto Fill
-            </button>
-          </div>
-
           {/* Error Alert Message */}
           {errorMessage && (
             <div
