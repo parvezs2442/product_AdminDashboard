@@ -1,15 +1,19 @@
 import React from 'react';
 import { Product } from '@/types/product';
-import { Star, Package, Check, AlertTriangle, XCircle } from 'lucide-react';
+import { Star, Package, Check, AlertTriangle, XCircle, Pencil, Trash2 } from 'lucide-react';
 
 interface ProductCardGridProps {
   products: Product[];
   onSelectProduct?: (product: Product) => void;
+  onEditProduct?: (product: Product) => void;
+  onDeleteProduct?: (product: Product) => void;
 }
 
 export const ProductCardGrid: React.FC<ProductCardGridProps> = ({
   products,
   onSelectProduct,
+  onEditProduct,
+  onDeleteProduct,
 }) => {
   const getStockBadge = (stock: number) => {
     if (stock <= 0) {
@@ -74,14 +78,46 @@ export const ProductCardGrid: React.FC<ProductCardGridProps> = ({
             </div>
 
             {/* Title & Brand */}
-            <h3 className="font-semibold text-white text-base line-clamp-1 group-hover:text-brand-400 transition-colors">
-              {product.title}
-            </h3>
-            {product.brand && (
-              <p className="text-xs text-slate-400 mt-0.5">
-                by <span className="text-slate-300">{product.brand}</span>
-              </p>
-            )}
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-white text-base line-clamp-1 group-hover:text-brand-400 transition-colors">
+                  {product.title}
+                </h3>
+                {product.brand && (
+                  <p className="text-xs text-slate-400 mt-0.5 truncate">
+                    by <span className="text-slate-300">{product.brand}</span>
+                  </p>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center space-x-1 shrink-0">
+                {onEditProduct && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditProduct(product);
+                    }}
+                    className="p-1 rounded-lg text-slate-400 hover:text-brand-400 hover:bg-slate-800 transition-colors"
+                    title="Edit product"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                )}
+                {onDeleteProduct && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteProduct(product);
+                    }}
+                    className="p-1 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
+                    title="Delete product"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Card Bottom: Price, Rating & Stock */}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Product } from '@/types/product';
-import { Star, Package, Check, AlertTriangle, XCircle, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
+import { Star, Package, Check, AlertTriangle, XCircle, ArrowUp, ArrowDown, ArrowUpDown, Pencil, Trash2 } from 'lucide-react';
 
 interface ProductTableProps {
   products: Product[];
@@ -8,6 +8,8 @@ interface ProductTableProps {
   order?: 'asc' | 'desc';
   onSortChange?: (field: string, order: 'asc' | 'desc') => void;
   onSelectProduct?: (product: Product) => void;
+  onEditProduct?: (product: Product) => void;
+  onDeleteProduct?: (product: Product) => void;
 }
 
 export const ProductTable: React.FC<ProductTableProps> = ({
@@ -16,6 +18,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   order = 'asc',
   onSortChange,
   onSelectProduct,
+  onEditProduct,
+  onDeleteProduct,
 }) => {
   const getStockBadge = (stock: number) => {
     if (stock <= 0) {
@@ -115,6 +119,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                 {renderSortIcon('stock')}
               </div>
             </th>
+
+            {/* Actions Header */}
+            <th className="py-3.5 px-6 text-right">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-800/60 text-sm">
@@ -190,6 +197,36 @@ export const ProductTable: React.FC<ProductTableProps> = ({
               {/* Stock */}
               <td className="py-4 px-6 whitespace-nowrap text-right">
                 {getStockBadge(product.stock)}
+              </td>
+
+              {/* Actions */}
+              <td className="py-4 px-6 whitespace-nowrap text-right">
+                <div className="flex items-center justify-end space-x-1">
+                  {onEditProduct && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditProduct(product);
+                      }}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-brand-400 hover:bg-slate-800 transition-colors"
+                      title="Edit product"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                  )}
+                  {onDeleteProduct && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteProduct(product);
+                      }}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
+                      title="Delete product"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               </td>
             </tr>
           ))}

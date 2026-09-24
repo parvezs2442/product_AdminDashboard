@@ -7,15 +7,20 @@ import { ProductTable } from '@/components/products/ProductTable';
 import { ProductCardGrid } from '@/components/products/ProductCardGrid';
 import { Pagination } from '@/components/products/Pagination';
 import { ProductSkeleton } from '@/components/products/ProductSkeleton';
+import { ProductFormModal } from '@/components/products/ProductFormModal';
+import { ConfirmDeleteModal } from '@/components/products/ConfirmDeleteModal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { productService } from '@/services/productService';
-import { Product } from '@/types/product';
-import { Package, RefreshCw, Zap } from 'lucide-react';
+import { productOverlay } from '@/services/productOverlay';
+import { useToast } from '@/context/ToastContext';
+import { Product, CategoryItem } from '@/types/product';
+import { Package, RefreshCw, Zap, Plus, RotateCcw } from 'lucide-react';
 
 export const ProductsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const toast = useToast();
 
   // URL State Parsing (Bidirectional sync with defensive fallback)
   const rawPage = parseInt(searchParams.get('page') || '1', 10);
@@ -32,12 +37,35 @@ export const ProductsPage: React.FC = () => {
   // Data & UI states
   const [products, setProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState<number>(0);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isHybrid, setIsHybrid] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // CRUD Modals state
+  const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
+  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+
+  // Overlay state indicator
+  const [hasModifications, setHasModifications] = useState<boolean>(
+    productOverlay.hasOverlayModifications()
+  );
+
   // Race condition protection: Abort in-flight requests on quick user actions
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Load categories for modals
+  useEffect(() => {
+    let mounted = true;
+    productService.getCategories().then((cats) => {
+      if (mounted) setCategories(cats);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Fetch products with real-time cancellation
   const fetchProducts = useCallback(async () => {
@@ -70,6 +98,7 @@ export const ProductsPage: React.FC = () => {
         setProducts(data.products || []);
         setTotal(data.total || 0);
         setIsHybrid(Boolean(data.isHybrid));
+        setHasModifications(productOverlay.hasOverlayModifications());
       }
     } catch (err: any) {
       // Gracefully ignore requests canceled by AbortController
@@ -174,6 +203,51 @@ export const ProductsPage: React.FC = () => {
     navigate(`/products/${product.id}`);
   };
 
+  // CRUD Trigger Handlers
+  const handleOpenAdd = () => {
+    setEditingProduct(null);
+    setIsFormOpen(true);
+  };
+
+  const handleOpenEdit = (product: Product) => {
+    setEditingProduct(product);
+    setIsFormOpen(true);
+  };
+
+  const handleOpenDelete = (product: Product) => {
+    setDeletingProduct(product);
+    setIsDeleteOpen(true);
+  };
+
+  const handleFormSubmit = async (formData: Partial<Product>) => {
+    if (editingProduct) {
+      // Edit mode
+      await productService.updateProduct(editingProduct.id, formData);
+      toast.success('Product updated', `"${formData.title}" was successfully updated.`);
+    } else {
+      // Add mode
+      const created = await productService.addProduct(formData);
+      toast.success('Product created', `"${created.title}" was added to catalog.`);
+    }
+    setHasModifications(true);
+    fetchProducts();
+  };
+
+  const handleConfirmDelete = async (id: number) => {
+    const targetTitle = deletingProduct?.title || 'Product';
+    await productService.deleteProduct(id);
+    toast.success('Product deleted', `"${targetTitle}" was removed from catalog.`);
+    setHasModifications(true);
+    fetchProducts();
+  };
+
+  const handleResetDemoData = () => {
+    productOverlay.resetOverlay();
+    setHasModifications(false);
+    toast.info('Demo data restored', 'Original DummyJSON product catalog reset.');
+    fetchProducts();
+  };
+
   const hasActiveFilters = Boolean(
     searchQuery.trim() || (selectedCategory && selectedCategory !== 'all') || sortBy
   );
@@ -197,23 +271,46 @@ export const ProductsPage: React.FC = () => {
               </h1>
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center space-x-1">
                 <Zap className="w-3 h-3 mr-1" />
-                Stage 3
+                Stage 5: CRUD Ready
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              Real-time search, category filtering & multi-field sorting with race-condition protection.
+              Full CRUD management with validation, race-condition protection, and client persistence simulation.
             </p>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* Reset Demo Data button if changes made */}
+            {hasModifications && (
+              <button
+                onClick={handleResetDemoData}
+                className="inline-flex items-center space-x-1.5 text-xs font-medium text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 px-3 py-2 rounded-xl transition-all cursor-pointer"
+                title="Reset simulated overlay to original DummyJSON data"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset Demo Data</span>
+              </button>
+            )}
+
+            {/* Refresh Button */}
             <button
               onClick={fetchProducts}
               disabled={isLoading}
-              className="inline-flex items-center space-x-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-700/80 px-3.5 py-2 rounded-xl transition-all disabled:opacity-50"
+              className="inline-flex items-center space-x-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-700/80 px-3.5 py-2 rounded-xl transition-all disabled:opacity-50 cursor-pointer"
               title="Refresh product list"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
+            </button>
+
+            {/* Primary Add Product Button */}
+            <button
+              onClick={handleOpenAdd}
+              className="inline-flex items-center space-x-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-500 px-4 py-2 rounded-xl shadow-lg shadow-brand-600/30 transition-all cursor-pointer"
+              title="Create a new product"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Product</span>
             </button>
           </div>
         </div>
@@ -248,8 +345,8 @@ export const ProductsPage: React.FC = () => {
                   ? 'No products matched your search or filter criteria. Try adjusting your search term or clearing filters.'
                   : 'No products are currently available on this page.'
               }
-              actionText={hasActiveFilters ? 'Clear All Filters' : 'Go to Page 1'}
-              onAction={hasActiveFilters ? handleResetFilters : () => handlePageChange(1)}
+              actionText={hasActiveFilters ? 'Clear All Filters' : 'Add First Product'}
+              onAction={hasActiveFilters ? handleResetFilters : handleOpenAdd}
             />
           ) : (
             <div className="space-y-6">
@@ -261,6 +358,8 @@ export const ProductsPage: React.FC = () => {
                   order={order}
                   onSortChange={handleSortChange}
                   onSelectProduct={handleSelectProduct}
+                  onEditProduct={handleOpenEdit}
+                  onDeleteProduct={handleOpenDelete}
                 />
               </div>
 
@@ -269,6 +368,8 @@ export const ProductsPage: React.FC = () => {
                 <ProductCardGrid
                   products={products}
                   onSelectProduct={handleSelectProduct}
+                  onEditProduct={handleOpenEdit}
+                  onDeleteProduct={handleOpenDelete}
                 />
               </div>
 
@@ -286,6 +387,23 @@ export const ProductsPage: React.FC = () => {
           )}
         </div>
       </main>
+
+      {/* Product Form Modal (Add / Edit) */}
+      <ProductFormModal
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        onSubmit={handleFormSubmit}
+        initialData={editingProduct}
+        categories={categories}
+      />
+
+      {/* Confirm Delete Danger Modal */}
+      <ConfirmDeleteModal
+        isOpen={isDeleteOpen}
+        product={deletingProduct}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 };
